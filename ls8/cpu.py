@@ -2,6 +2,10 @@
 
 import sys
 
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+
 
 class CPU:
     """Main CPU class."""
@@ -76,8 +80,28 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+
+        running = True
+        while running:
+            ir = self.ram_read(self.pc)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            if ir == HLT:
+                running = False
+
+            elif ir == LDI:
+                self.register[operand_a] = operand_b
+                self.pc += 3
+
+            elif ir == PRN:
+                print(self.register[operand_a])
+                self.pc += 2
+
         pass
 
 
 cpu = CPU()
-print(cpu.ram)
+# print(cpu.ram)
+
+# print(cpu.ram_read(cpu.ram[cpu.pc + 1]))
