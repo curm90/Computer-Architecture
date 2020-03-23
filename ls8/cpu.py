@@ -16,11 +16,8 @@ class CPU:
         self.ram = [0] * 256
         # Registers
         self.register = [0] * 8
-
         # Internal registers
         self.pc = 0
-
-        pass
 
     def ram_read(self, mar):
         return self.ram[mar]
@@ -98,10 +95,7 @@ class CPU:
                 print(self.register[operand_a])
                 self.pc += 2
 
-        pass
-
 
 cpu = CPU()
 # print(cpu.ram)
-
 # print(cpu.ram_read(cpu.ram[cpu.pc + 1]))
