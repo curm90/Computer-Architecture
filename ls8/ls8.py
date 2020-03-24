@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-
-"""Main."""
-
 import sys
 from cpu import *
 
+"""Main."""
 cpu = CPU()
 
 cpu.load()
