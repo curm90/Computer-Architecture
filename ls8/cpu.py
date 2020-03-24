@@ -32,6 +32,15 @@ class CPU:
             print('Usage: <ls8.py> filename')
             sys.exit(1)
 
+        try:
+            with open(sys.argv[1]) as f:
+                for line in f:
+                    print(line)
+
+        except FileNotFoundError:
+            print('File not found')
+            sys.exit(2)
+
         # address = 0
 
         # # For now, we've just hardcoded a program:
