@@ -60,8 +60,9 @@ class CPU:
         """ALU operations."""
 
         if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        # elif op == "SUB": etc
+            self.register[reg_a] += self.register[reg_b]
+        elif op == "MUL":
+            self.register[reg_a] *= self.register[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -81,7 +82,7 @@ class CPU:
         ), end='')
 
         for i in range(8):
-            print(" %02X" % self.reg[i], end='')
+            print(" %02X" % self.register[i], end='')
 
         print()
 
@@ -106,7 +107,7 @@ class CPU:
                 self.pc += 2
 
             elif ir == MUL:
-                self.register[operand_a] *= self.register[operand_b]
+                self.alu('MUL', operand_a, operand_b)
                 self.pc += 3
 
 
