@@ -5,6 +5,7 @@ import sys
 HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
+MUL = 0b10100010
 
 
 class CPU:
@@ -47,7 +48,6 @@ class CPU:
 
                     # Convert our binary string to a number
                     val = int(num, 2)
-                    print(val)
 
                     self.ram[address] = val
                     address += 1
@@ -104,6 +104,10 @@ class CPU:
             elif ir == PRN:
                 print(self.register[operand_a])
                 self.pc += 2
+
+            elif ir == MUL:
+                self.register[operand_a] *= self.register[operand_b]
+                self.pc += 3
 
 
 cpu = CPU()
