@@ -25,7 +25,7 @@ class CPU:
     def ram_write(self, mdr, mar):
         self.ram[mar] = mdr
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
         if len(sys.argv) != 2:
             print('Must specify a file to run.')
@@ -33,31 +33,28 @@ class CPU:
             sys.exit(1)
 
         try:
-            with open(sys.argv[1]) as f:
-                for line in f:
-                    print(line)
+            address = 0
+            with open(filename) as f:
+                for instruction in f:
+                    # Split instruction before and after comment symbol
+                    comment_split = instruction.split('#')
+
+                    # Extract our number
+                    num = comment_split[0].strip()  # Trim whitespace
+
+                    if comment_split[0] == '':
+                        continue  # Ignore blank lines
+
+                    # Convert our binary string to a number
+                    val = int(num, 2)
+                    print(val)
+
+                    self.ram[address] = val
+                    address += 1
 
         except FileNotFoundError:
             print('File not found')
             sys.exit(2)
-
-        # address = 0
-
-        # # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010,  # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     0b01000111,  # PRN R0
-        #     0b00000000,
-        #     0b00000001,  # HLT
-        # ]
-
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
