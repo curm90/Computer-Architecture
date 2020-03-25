@@ -125,6 +125,16 @@ class CPU:
                 # Increment program counter
                 self.pc += 2
 
+            elif ir == POP:
+                # Grab value from stack
+                val = self.ram[self.register[SP]]
+                # Copy the value from the address pointed to by `SP` to the given register
+                self.register[operand_a] = val
+                # Increment SP
+                self.register[SP] += 1
+                # Increment program counter
+                self.pc += 1
+
 
 cpu = CPU()
 # print(cpu.ram)
