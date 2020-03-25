@@ -133,7 +133,7 @@ class CPU:
                 # Increment SP
                 self.register[SP] += 1
                 # Increment program counter
-                self.pc += 1
+                self.pc += 2
 
 
 cpu = CPU()
