@@ -7,6 +7,10 @@ LDI = 0b10000010
 PRN = 0b01000111
 ADD = 0b10100000
 MUL = 0b10100010
+POP = 0b01000110
+PUSH = 0b01000101
+
+SP = 7
 
 
 class CPU:
@@ -110,6 +114,16 @@ class CPU:
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
                 self.pc += 3
+
+            elif ir == PUSH:
+                # Extract register argument
+                val = self.register[operand_a]
+                # Decrement SP
+                self.register[SP] -= 1
+                # Copy the value in the given register to the address pointed to by SP
+                self.ram[self.register[SP]] = val
+                # Increment program counter
+                self.pc += 2
 
 
 cpu = CPU()
