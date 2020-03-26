@@ -2,15 +2,15 @@
 
 import sys
 
-HLT = 0b00000001  # 1
-LDI = 0b10000010  # 130
-PRN = 0b01000111  # 71
-ADD = 0b10100000
-MUL = 0b10100010
-POP = 0b01000110
-PUSH = 0b01000101
-CALL = 0b01010000
-RET = 0b00010001
+HLT = 0b00000001   # 1
+LDI = 0b10000010   # 130
+PRN = 0b01000111   # 71
+ADD = 0b10100000   # 160
+MUL = 0b10100010   # 162
+POP = 0b01000110   # 70
+PUSH = 0b01000101  # 69
+CALL = 0b01010000  # 80
+RET = 0b00010001   # 17
 
 SP = 7
 
@@ -35,6 +35,7 @@ class CPU:
 
     def load(self, filename):
         """Load a program into memory."""
+
         if len(sys.argv) != 2:
             print('Must specify a file to run.')
             print('Usage: <ls8.py> filename')
