@@ -123,7 +123,7 @@ class CPU:
                 # Decrement SP
                 self.register[SP] -= 1
                 # Copy the value in the given register to the address pointed to by SP
-                self.ram[self.register[SP]] = val
+                self.ram_write(val, self.register[SP])
                 # Increment program counter
                 self.pc += 2
 
