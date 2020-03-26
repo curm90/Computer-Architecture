@@ -30,7 +30,7 @@ class CPU:
         self.register = [0] * 8
         # Internal registers
         self.PC = 0
-        self.FL = 0
+        self.FL = 0b00000000
 
     def ram_read(self, MAR):
         return self.ram[MAR]
@@ -79,10 +79,10 @@ class CPU:
         elif op == 'CMP':
             if self.register[reg_a] < self.register[reg_b]:
                 self.FL = 0b00000100
-            elif self.register[reg_a] == self.register[reg_b]:
-                self.FL = 0b00000001
             elif self.register[reg_a] > self.register[reg_b]:
                 self.FL = 0b00000010
+            elif self.register[reg_a] == self.register[reg_b]:
+                self.FL = 0b00000001
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -173,17 +173,16 @@ class CPU:
                 self.PC = self.register[operand_a]
 
             elif ir == JEQ:
-                if self.FL == 0b00000001:
+                if self.FL & 0b00000001 == 1:
                     self.PC = self.register[operand_a]
                 else:
                     self.PC += op_count
 
             elif ir == JNE:
-                if self.FL != 0b00000000:
+                if self.FL & 0b00000001 != 1:
                     self.PC = self.register[operand_a]
                 else:
                     self.PC += op_count
-
 
             else:
                 print(f'Invalid instruction {ir}')
