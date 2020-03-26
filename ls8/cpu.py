@@ -97,8 +97,10 @@ class CPU:
         """Run the CPU."""
 
         running = True
+
         while running:
             ir = self.ram_read(self.pc)
+            op_count = ir >> 6
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
@@ -107,15 +109,15 @@ class CPU:
 
             elif ir == LDI:
                 self.register[operand_a] = operand_b
-                self.pc += 3
+                self.pc += op_count + 1
 
             elif ir == PRN:
                 print(self.register[operand_a])
-                self.pc += 2
+                self.pc += op_count + 1
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
-                self.pc += 3
+                self.pc += op_count + 1
 
             elif ir == PUSH:
                 # Extract register argument
@@ -125,7 +127,7 @@ class CPU:
                 # Copy the value in the given register to the address pointed to by SP
                 self.ram_write(val, self.register[SP])
                 # Increment program counter
-                self.pc += 2
+                self.pc += op_count + 1
 
             elif ir == POP:
                 # Grab value from stack
@@ -135,9 +137,23 @@ class CPU:
                 # Increment SP
                 self.register[SP] += 1
                 # Increment program counter
-                self.pc += 2
+                self.pc += op_count + 1
+
+            elif ir == CALL:
+                self.register[SP] -= 1
+                self.ram_write(self.pc + 2, self.register[SP])
+                self.pc = self.register[operand_a]
+
+            elif ir == RET:
+                self.pc = self.ram_read(self.register[SP])
+                self.register[SP] += 1
+
+            else:
+                print(f'Invalid instruction {ir}')
+                running = False
 
 
 cpu = CPU()
+
 # print(cpu.ram)
 # print(cpu.ram_read(cpu.ram[cpu.pc + 1]))
