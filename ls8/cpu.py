@@ -2,9 +2,9 @@
 
 import sys
 
-HLT = 0b00000001
-LDI = 0b10000010
-PRN = 0b01000111
+HLT = 0b00000001  # 1
+LDI = 0b10000010  # 130
+PRN = 0b01000111  # 71
 ADD = 0b10100000
 MUL = 0b10100010
 POP = 0b01000110
@@ -117,6 +117,10 @@ class CPU:
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
+                self.pc += op_count + 1
+
+            elif ir == ADD:
+                self.alu('ADD', operand_a, operand_b)
                 self.pc += op_count + 1
 
             elif ir == PUSH:
