@@ -172,6 +172,13 @@ class CPU:
             elif ir == JMP:
                 self.PC = self.register[operand_a]
 
+            elif ir == JEQ:
+                if self.FL == 0b00000001:
+                    self.PC = self.register[operand_a]
+                else:
+                    self.PC += op_count
+
+
             else:
                 print(f'Invalid instruction {ir}')
                 running = False
