@@ -11,6 +11,10 @@ POP = 0b01000110   # 70
 PUSH = 0b01000101  # 69
 CALL = 0b01010000  # 80
 RET = 0b00010001   # 17
+CMP = 0b10100111   # 167
+JMP = 0b01010100   # 84
+JEQ = 0b01010101   # 85
+JNE = 0b01010110   # 86
 
 SP = 7
 
@@ -26,12 +30,13 @@ class CPU:
         self.register = [0] * 8
         # Internal registers
         self.pc = 0
+        self.fl = 0
 
-    def ram_read(self, mar):
-        return self.ram[mar]
+    def ram_read(self, MAR):
+        return self.ram[MAR]
 
-    def ram_write(self, mdr, mar):
-        self.ram[mar] = mdr
+    def ram_write(self, MDR, MAR):
+        self.ram[MAR] = MDR
 
     def load(self, filename):
         """Load a program into memory."""
@@ -101,7 +106,7 @@ class CPU:
 
         while running:
             ir = self.ram_read(self.pc)
-            op_count = ir >> 6
+            op_count = (ir >> 6) + 1
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
@@ -110,19 +115,23 @@ class CPU:
 
             elif ir == LDI:
                 self.register[operand_a] = operand_b
-                self.pc += op_count + 1
+                self.pc += op_count
 
             elif ir == PRN:
                 print(self.register[operand_a])
-                self.pc += op_count + 1
+                self.pc += op_count
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
-                self.pc += op_count + 1
+                self.pc += op_count
 
             elif ir == ADD:
                 self.alu('ADD', operand_a, operand_b)
-                self.pc += op_count + 1
+                self.pc += op_count
+
+            elif ir == 'CMP':
+                self.alu('CMP', operand_a, operand_b)
+                self.pc += op_count
 
             elif ir == PUSH:
                 # Extract register argument
@@ -132,7 +141,7 @@ class CPU:
                 # Copy the value in the given register to the address pointed to by SP
                 self.ram_write(val, self.register[SP])
                 # Increment program counter
-                self.pc += op_count + 1
+                self.pc += op_count
 
             elif ir == POP:
                 # Grab value from stack
@@ -142,7 +151,7 @@ class CPU:
                 # Increment SP
                 self.register[SP] += 1
                 # Increment program counter
-                self.pc += op_count + 1
+                self.pc += op_count
 
             elif ir == CALL:
                 self.register[SP] -= 1
