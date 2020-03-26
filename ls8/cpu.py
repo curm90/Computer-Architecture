@@ -169,6 +169,9 @@ class CPU:
                 self.PC = self.ram_read(self.register[SP])
                 self.register[SP] += 1
 
+            elif ir == JMP:
+                self.PC = self.register[operand_a]
+
             else:
                 print(f'Invalid instruction {ir}')
                 running = False
