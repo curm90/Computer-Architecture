@@ -178,6 +178,12 @@ class CPU:
                 else:
                     self.PC += op_count
 
+            elif ir == JNE:
+                if self.FL != 0b00000000:
+                    self.PC = self.register[operand_a]
+                else:
+                    self.PC += op_count
+
 
             else:
                 print(f'Invalid instruction {ir}')
