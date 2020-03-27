@@ -15,8 +15,13 @@ CMP = 0b10100111   # 167
 JMP = 0b01010100   # 84
 JEQ = 0b01010101   # 85
 JNE = 0b01010110   # 86
-
-SP = 7
+AND = 0b10101000   # 168
+OR = 0b10101010    # 170
+XOR = 0b10101011   # 171
+NOT = 0b01101001   # 105
+MOD = 0b10100100   # 164
+SHL = 0b10101100   # 172
+SHR = 0b10101101   # 173
 
 
 class CPU:
@@ -24,21 +29,22 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        # Memory
-        self.ram = [0] * 256
-        # Registers
-        self.register = [0] * 8
-        # Internal registers
-        self.PC = 0
-        self.FL = 0b00000000
+        self.ram = [0] * 256  # Memory
+        self.register = [0] * 8  # Registers
+        self.PC = 0  # Program counter
+        self.FL = 0b00000000  # Flags
+        # self.SP = 0  # Stack pointer
+        self.register[7] = 0xF4  # Stack pointer
 
     def ram_read(self, MAR):
+        ''' Return a value at memory address register (MAR) '''
         return self.ram[MAR]
 
     def ram_write(self, MDR, MAR):
+        ''' Write value memory data register to address memory address register (MAR) '''
         self.ram[MAR] = MDR
 
-    def load(self, filename):
+    def load(self):
         """Load a program into memory."""
 
         if len(sys.argv) != 2:
@@ -48,13 +54,13 @@ class CPU:
 
         try:
             address = 0
-            with open(filename) as f:
+            with open(sys.argv[1]) as f:
                 for instruction in f:
                     # Split instruction before and after comment symbol
-                    comment_split = instruction.split('#')
+                    comment_split = instruction.strip().split('#')  # Trim whitespace
 
                     # Extract our number
-                    num = comment_split[0].strip()  # Trim whitespace
+                    num = comment_split[0]
 
                     if comment_split[0] == '':
                         continue  # Ignore blank lines
@@ -83,6 +89,23 @@ class CPU:
                 self.FL = 0b00000010
             elif self.register[reg_a] == self.register[reg_b]:
                 self.FL = 0b00000001
+        elif op == 'AND':
+            self.register[reg_a] &= self.register[reg_b]
+        elif op == 'OR':
+            self.register[reg_a] |= self.register[reg_b]
+        elif op == 'XOR':
+            self.register[reg_a] ^= self.register[reg_b]
+        elif op == 'NOT':
+            self.register[reg_a] = ~self.register[reg_a]
+        elif op == 'MOD':
+            if self.register[reg_b] == 0:
+                print('Error')
+                sys.exit(1)
+            self.register[reg_a] %= self.register[reg_b]
+        elif op == 'SHL':
+            self.register[reg_a] = self.register[reg_a] << self.register[reg_b]
+        elif op == 'SHR':
+            self.register[reg_a] = self.register[reg_a] >> self.register[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -113,7 +136,7 @@ class CPU:
 
         while running:
             ir = self.ram_read(self.PC)
-            op_count = (ir >> 6) + 1
+            # op_count = (ir >> 6) + 1
             operand_a = self.ram_read(self.PC + 1)
             operand_b = self.ram_read(self.PC + 2)
 
@@ -122,52 +145,82 @@ class CPU:
 
             elif ir == LDI:
                 self.register[operand_a] = operand_b
-                self.PC += op_count
+                # self.PC += op_count
 
             elif ir == PRN:
                 print(self.register[operand_a])
-                self.PC += op_count
+                # self.PC += op_count
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
-                self.PC += op_count
+                # self.PC += op_count
 
             elif ir == ADD:
                 self.alu('ADD', operand_a, operand_b)
-                self.PC += op_count
+                # self.PC += op_count
 
             elif ir == CMP:
                 self.alu('CMP', operand_a, operand_b)
-                self.PC += op_count
+                # self.PC += op_count
+
+            elif ir == AND:
+                self.alu('AND', operand_a, operand_b)
+                # self.PC += op_count
+
+            elif ir == OR:
+                self.alu('OR', operand_a, operand_b)
+                # self.PC += op_count
+
+            elif ir == XOR:
+                self.alu('XOR', operand_a, operand_b)
+                # self.PC += op_count
+
+            elif ir == NOT:
+                self.alu('NOT', operand_a, None)
+                # self.PC += op_count
+
+            elif ir == MOD:
+                self.alu('MOD', operand_a, operand_b)
+                # self.PC += op_count
+
+            elif ir == SHL:
+                self.alu('SHL', operand_a, operand_b)
+                # self.PC += op_count
+
+            elif ir == SHR:
+                self.alu('SHR', operand_a, operand_b)
+                # self.PC += op_count
 
             elif ir == PUSH:
-                # Extract register argument
+                self.register[7] -= 1
                 val = self.register[operand_a]
+                self.ram_write(val, self.register[7])
+                # Extract register argument
                 # Decrement SP
-                self.register[SP] -= 1
-                # Copy the value in the given register to the address pointed to by SP
-                self.ram_write(val, self.register[SP])
-                # Increment program counter
-                self.PC += op_count
+                # self.register[self.SP] -= 1
+                # # Copy the value in the given register to the address pointed to by SP
+                # self.ram_write(val, self.register[self.SP])
+                # # Increment program counter
+                # self.PC += op_count
 
             elif ir == POP:
                 # Grab value from stack
-                val = self.ram[self.register[SP]]
+                val = self.ram_read(self.register[7])
                 # Copy the value from the address pointed to by `SP` to the given register
                 self.register[operand_a] = val
                 # Increment SP
-                self.register[SP] += 1
+                self.register[7] += 1
                 # Increment program counter
-                self.PC += op_count
+                # self.PC += op_count
 
             elif ir == CALL:
-                self.register[SP] -= 1
-                self.ram_write(self.PC + 2, self.register[SP])
+                self.register[7] -= 1
+                self.ram_write(self.PC + 2, self.register[7])
                 self.PC = self.register[operand_a]
 
             elif ir == RET:
-                self.PC = self.ram_read(self.register[SP])
-                self.register[SP] += 1
+                self.PC = self.ram_read(self.register[7])
+                self.register[7] += 1
 
             elif ir == JMP:
                 self.PC = self.register[operand_a]
@@ -176,20 +229,20 @@ class CPU:
                 if self.FL & 0b00000001 == 1:
                     self.PC = self.register[operand_a]
                 else:
-                    self.PC += op_count
+                    self.PC += 2
 
             elif ir == JNE:
                 if self.FL & 0b00000001 != 1:
                     self.PC = self.register[operand_a]
                 else:
-                    self.PC += op_count
+                    self.PC += 2
 
             else:
                 print(f'Invalid instruction {ir}')
                 running = False
 
+            if ir & 0b00010000 == 0:
+                self.PC += (ir >> 6) + 1
+
 
 cpu = CPU()
-
-# print(cpu.ram)
-# print(cpu.ram_read(cpu.ram[cpu.pc + 1]))
