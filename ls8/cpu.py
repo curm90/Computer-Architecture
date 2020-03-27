@@ -33,7 +33,6 @@ class CPU:
         self.register = [0] * 8  # Registers
         self.PC = 0  # Program counter
         self.FL = 0b00000000  # Flags
-        # self.SP = 0  # Stack pointer
         self.register[7] = 0xF4  # Stack pointer
 
     def ram_read(self, MAR):
@@ -136,7 +135,6 @@ class CPU:
 
         while running:
             ir = self.ram_read(self.PC)
-            # op_count = (ir >> 6) + 1
             operand_a = self.ram_read(self.PC + 1)
             operand_b = self.ram_read(self.PC + 2)
 
@@ -145,63 +143,47 @@ class CPU:
 
             elif ir == LDI:
                 self.register[operand_a] = operand_b
-                # self.PC += op_count
 
             elif ir == PRN:
                 print(self.register[operand_a])
-                # self.PC += op_count
 
             elif ir == MUL:
                 self.alu('MUL', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == ADD:
                 self.alu('ADD', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == CMP:
                 self.alu('CMP', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == AND:
                 self.alu('AND', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == OR:
                 self.alu('OR', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == XOR:
                 self.alu('XOR', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == NOT:
                 self.alu('NOT', operand_a, None)
-                # self.PC += op_count
 
             elif ir == MOD:
                 self.alu('MOD', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == SHL:
                 self.alu('SHL', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == SHR:
                 self.alu('SHR', operand_a, operand_b)
-                # self.PC += op_count
 
             elif ir == PUSH:
-                self.register[7] -= 1
-                val = self.register[operand_a]
-                self.ram_write(val, self.register[7])
-                # Extract register argument
                 # Decrement SP
-                # self.register[self.SP] -= 1
+                self.register[7] -= 1
+                # Extract register argument
+                val = self.register[operand_a]
                 # # Copy the value in the given register to the address pointed to by SP
-                # self.ram_write(val, self.register[self.SP])
-                # # Increment program counter
-                # self.PC += op_count
+                self.ram_write(val, self.register[7])
 
             elif ir == POP:
                 # Grab value from stack
@@ -210,8 +192,6 @@ class CPU:
                 self.register[operand_a] = val
                 # Increment SP
                 self.register[7] += 1
-                # Increment program counter
-                # self.PC += op_count
 
             elif ir == CALL:
                 self.register[7] -= 1
